@@ -7,10 +7,10 @@ Aplicación Android en Kotlin y Jetpack Compose para alternar entre **radar de j
 ## Modos
 
 - **Juegos:** UsageStatsManager y eventos `ACTIVITY_RESUMED` / `ACTIVITY_PAUSED`. Solo reconoce los packages configurados. Catálogo inicial: Free Fire, Roblox y Minecraft; se puede editar.
-- **Música:** descubre sesiones multimedia activas y permite elegir qué reproductores aceptar. Lee título, artista, álbum, carátula y nombre de app desde `MediaSessionManager`. No inspecciona texto de notificaciones, no guarda el historial y no envía los metadatos por red.
+- **Música:** descubre reproductores instalados que exponen el servicio multimedia estándar y suma sesiones activas compatibles; permite filtrar qué fuentes aceptar. Lee título, artista, álbum, carátula y nombre de app desde `MediaSessionManager`. No inspecciona texto de notificaciones, no guarda el historial y no envía los metadatos por red.
 - **Ajustes:** lista editable de juegos y selector de fuentes de música.
 
-Para el modo Música, Android pide habilitar **Acceso a notificaciones**. Android solo permite enumerar las sesiones activas a una app que tenga ese acceso concedido mediante `NotificationListenerService`; la app luego consulta únicamente los metadatos de sesiones multimedia activas. Solo aparecen reproductores que publican una sesión compatible, normalmente mientras están reproduciendo.
+Para el modo Música, Android pide habilitar **Acceso a notificaciones**. Android solo permite enumerar las sesiones activas a una app que tenga ese acceso concedido mediante `NotificationListenerService`; la app luego consulta únicamente los metadatos de sesiones multimedia activas. El catálogo de apps depende de la visibilidad de paquetes Android: se consultan únicamente apps que anuncian el servicio estándar de navegador multimedia; otros reproductores aparecen cuando Android expone su sesión activa.
 
 ## Discord: límites comprobados
 

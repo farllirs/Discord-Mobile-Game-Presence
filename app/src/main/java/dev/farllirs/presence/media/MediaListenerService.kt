@@ -4,6 +4,7 @@ import android.content.ComponentName
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaMetadata
+import android.media.browse.MediaBrowserService
 import android.media.session.MediaController
 import android.media.session.MediaSessionManager
 import android.media.session.PlaybackState
@@ -14,11 +15,13 @@ class MediaListenerService : NotificationListenerService() {
     private var manager: MediaSessionManager? = null
     private val component by lazy { ComponentName(this, MediaListenerService::class.java) }
     private val controllerCallbacks = mutableMapOf<android.media.session.MediaSession.Token, Pair<MediaController, MediaController.Callback>>()
+    private var installedMediaProviders: List<MediaSource> = emptyList()
     private val listener = MediaSessionManager.OnActiveSessionsChangedListener { controllers -> refresh(controllers.orEmpty()) }
 
     override fun onListenerConnected() {
         super.onListenerConnected()
         MediaSourcePreferences.initialize(this)
+        installedMediaProviders = discoverMediaProviders()
         manager = getSystemService(MediaSessionManager::class.java)
         manager?.addOnActiveSessionsChangedListener(listener, component)
         refresh(manager?.getActiveSessions(component).orEmpty())
@@ -55,7 +58,7 @@ class MediaListenerService : NotificationListenerService() {
                 controller.registerCallback(callback)
             }
         }
-        val sources = controllers.mapNotNull { controller ->
+        val activeSources = controllers.mapNotNull { controller ->
             runCatching {
                 val metadata = controller.metadata
                 val appName = runCatching {
@@ -75,8 +78,18 @@ class MediaListenerService : NotificationListenerService() {
                 )
             }.getOrNull()
         }.distinctBy { it.packageName }
+        val activeByPackage = activeSources.associateBy { it.packageName }
+        val sources = (installedMediaProviders.map { activeByPackage[it.packageName] ?: it } + activeSources).distinctBy { it.packageName }
         MediaSessionStore.publish(sources)
     }
+
+    @Suppress("DEPRECATION")
+    private fun discoverMediaProviders(): List<MediaSource> = runCatching {
+        packageManager.queryIntentServices(android.content.Intent(MediaBrowserService.SERVICE_INTERFACE), 0)
+            .mapNotNull { it.serviceInfo?.applicationInfo }
+            .distinctBy { it.packageName }
+            .map { info -> MediaSource(info.packageName, packageManager.getApplicationLabel(info).toString(), null, null, null, null, false) }
+    }.getOrDefault(emptyList())
 
     private fun loadArtwork(metadata: MediaMetadata): Bitmap? {
         metadata.getBitmap(MediaMetadata.METADATA_KEY_ART)?.let { return it }

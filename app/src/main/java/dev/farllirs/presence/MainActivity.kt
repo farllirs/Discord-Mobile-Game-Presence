@@ -210,7 +210,7 @@ class MainActivity : ComponentActivity() {
                                         Text("FUENTES DE MÚSICA", color = cyan, fontFamily = FontFamily.Monospace)
                                         Text(if (mediaAccess) "Acceso multimedia habilitado" else "Permiso especial requerido para leer título, artista y carátula de sesiones activas.", color = muted, style = MaterialTheme.typography.bodySmall)
                                         if (!mediaAccess) OutlinedButton(onClick = { startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }) { Text("Abrir acceso multimedia") }
-                                        if (media.sources.isEmpty()) Text("Abre un reproductor para descubrirlo aquí.", color = muted)
+                                        if (media.sources.isEmpty()) Text("Elige una app multimedia instalada; abre un reproductor para ver sus metadatos.", color = muted)
                                     }
                                 }
                             }

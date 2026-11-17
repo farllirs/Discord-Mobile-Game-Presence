@@ -271,6 +271,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun hasMediaAccess(): Boolean = getSystemService(NotificationManager::class.java)
+    private fun hasMediaAccess(): Boolean = Build.VERSION.SDK_INT >= 27 && getSystemService(NotificationManager::class.java)
         .isNotificationListenerAccessGranted(ComponentName(this, dev.farllirs.presence.media.MediaListenerService::class.java))
 }

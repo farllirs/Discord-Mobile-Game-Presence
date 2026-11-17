@@ -1,9 +1,8 @@
 # Informe de pruebas
 
-- Tests unitarios preparados: catálogo/app ajena, Free Fire, Roblox/Minecraft, salida, cambio y actividades múltiples. Ejecución pendiente.
-- ADB reconoce Samsung Galaxy A23, Android 14 (API 34); no hay APK aún.
-- Prueba real de acceso concedido/denegado, los tres juegos, Discord desconectado/no instalado, reinicio y políticas de batería Samsung: pendiente.
-- Rich Presence Android oficial documentado; prueba de publicación pendiente: falta paquete Social SDK del Developer Portal y configuración de aplicación Discord.
-- No se declara éxito con datos simulados.
-
-- Límite confirmado en la referencia oficial Activity: el SDK asocia la presencia al juego/aplicación integrador y sobreescribe nombre/application ID; anunciar juegos externos por nombre no está documentado.
+- **CI 44177572104:** `testDebugUnitTest`, `lintDebug` y `assembleDebug` pasaron; artifact Debug generado.
+- Pruebas unitarias cubren coincidencia del catálogo, app normal, salida de juego, cambio de juego y varias Activities del mismo package.
+- Galaxy A23 / Android 14 (API 34): APK instalado. Usage Access concedido durante la prueba. El servicio foreground apareció con su notificación; al abrir Roblox, la notificación indicó `Jugando: Roblox`; al salir a inicio volvió a `No se detecta un juego`.
+- Discord está instalado en el teléfono; no se intentó publicar actividad porque la documentación oficial no ofrece el uso externo requerido.
+- Prueba real de Minecraft, Free Fire y MediaSession con reproductor de música: pendiente. Se respetará la instrucción del usuario de no volver a usar ADB sin preguntarle antes.
+- No se marca prueba de medios ni de publicación Discord como exitosa con datos simulados.

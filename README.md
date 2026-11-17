@@ -1,40 +1,56 @@
-# Farllirs Presence — Discord Mobile Game Presence
+# Farllirs Presence — Teto / XZP signal hub
 
-App Android Kotlin + Jetpack Compose con identidad **Farllirs / XZP** (violeta y menta). Estado: prototipo. Detector/catálogo/UI implementados; publicación Discord aún no está activa y no se presenta como conexión real.
+Aplicación Android en Kotlin y Jetpack Compose para alternar entre **radar de juegos** y **audio deck**. La identidad usa Teto, XZP y Farllirs con una paleta grafito, rojo y cian. No emplea arte oficial de Discord ni recopila contenido en un servidor.
 
-## Discord: verificación
+> Estado: prototipo en desarrollo. La detección de juegos y la interfaz ya compilan. El modo de música usa `MediaSessionManager` tras habilitar el acceso especial de notificaciones y muestra el tema activo, artista, álbum, carátula y reproductor cuando la app de música publica una sesión Android compatible. La capa Discord permanece deshabilitada: el Social SDK oficial no respalda publicar juegos externos ni un estado Listening arbitrario desde una app auxiliar.
 
-La [documentación Social SDK](https://discord.com/developers/docs/social-sdk/overview) y sus [notas de versión](https://discord.com/developers/docs/social-sdk/release_notes.html) describen soporte del SDK Android (7+) y Rich Presence por RPC no autenticado hacia el cliente Android de Discord, sin OAuth ni token personal. Esta app requiere Android 8 o posterior. El SDK está destinado a juegos que lo integran. Esta aplicación observa otras apps, y no es un juego que incorpore el SDK. El paquete SDK se obtiene en Developer Portal para una aplicación configurada según [Getting Started](https://discord.com/developers/docs/social-sdk/getting_started.html); no es dependencia pública disponible en este entorno. La referencia de Activity especifica que la actividad pertenece al juego actual y que su nombre e identificador de aplicación no pueden elegirse libremente desde el SDK. Así que el SDK oficial no ofrece una vía documentada para que esta app anuncie "Playing Free Fire/Roblox/Minecraft" cuando esos juegos no integran SDK. No se afirma que Discord admita este caso de uso. No se usan user tokens, RPC legado, endpoints privados o automatización.
+## Modos
 
-Alternativas legítimas: presencia nativa publicada por el juego, solicitar al desarrollador integrar Social SDK o aportar/disponer del paquete oficial y confirmar que sus términos permiten esta integración. La capa Discord está aislada y no declara éxito ficticio.
+- **Juegos:** UsageStatsManager y eventos `ACTIVITY_RESUMED` / `ACTIVITY_PAUSED`. Solo reconoce los packages configurados. Catálogo inicial: Free Fire, Roblox y Minecraft; se puede editar.
+- **Música:** descubre sesiones multimedia activas y permite elegir qué reproductores aceptar. Lee título, artista, álbum, carátula y nombre de app desde `MediaSessionManager`. No inspecciona texto de notificaciones, no guarda el historial y no envía los metadatos por red.
+- **Ajustes:** lista editable de juegos y selector de fuentes de música.
 
-## Funciones
+Para el modo Música, Android pide habilitar **Acceso a notificaciones**. Android solo permite enumerar las sesiones activas a una app que tenga ese acceso concedido mediante `NotificationListenerService`; la app luego consulta únicamente los metadatos de sesiones multimedia activas. Solo aparecen reproductores que publican una sesión compatible, normalmente mientras están reproduciendo.
 
-- Catálogo editable por nombre/package name; incluye Free Fire, Roblox, Minecraft.
-- `UsageStatsManager` local: compara solo packages configurados, eventos `ACTIVITY_RESUMED` y `ACTIVITY_PAUSED`.
-- Servicio foreground con notificación, inicio/detención, DataStore; Settings para Usage Access.
-- Sin historial, telemetría ni transmisión de uso de otras aplicaciones.
+## Discord: límites comprobados
+
+Discord Social SDK añadió transporte RPC Android que puede publicar presencia en el cliente Discord instalado sin flujo OAuth ni token personal. Sin embargo, su referencia de `Activity` indica que las actividades pertenecen al juego que integra el SDK; el nombre y el identificador de aplicación no se pueden elegir para atribuir la presencia a otra app. La misma referencia dice que, aunque Discord define varios tipos de actividad, para el Social SDK el tipo relevante es `Playing`. La existencia de `Listening` en el enum global no equivale a soporte para que esta app ponga una canción externa como Listening.
+
+Por eso Farllirs Presence **no afirma conexión ni publicación Rich Presence**, y no usa RPC privado/antiguo, tokens personales ni automatización. Para publicar una canción o juego externo, la vía compatible es que Discord o la app/juego de origen proporcione una integración oficial que lo admita. La detección y visualización local funcionan de forma independiente.
+
+Fuentes primarias:
+
+- [Discord Social SDK](https://discord.com/developers/docs/social-sdk/overview)
+- [Discord Social SDK: Activity](https://discord.com/developers/docs/social-sdk/classdiscordpp_1_1Activity.html)
+- [Discord Social SDK: release notes](https://discord.com/developers/docs/social-sdk/release_notes.html)
+- [Android: MediaSessionManager](https://developer.android.com/reference/android/media/session/MediaSessionManager)
+- [Android: MediaMetadata](https://developer.android.com/reference/android/media/MediaMetadata)
 
 ## Compilar
 
-Android Studio con JDK 17 y Android SDK Platform 35; o Gradle 8.11.1:
+Requiere Android Studio, JDK 17 y Android SDK Platform 35:
 
 ```sh
 ./gradlew testDebugUnitTest lintDebug assembleDebug
 ```
 
-APK: `app/build/outputs/apk/debug/app-debug.apk`. Actions ejecuta unit tests, lint y build debug, y publica artifact. Tags `v*` generan APK release; queda sin firmar si no se configuran secretos. Para firmar, define `RELEASE_KEYSTORE_BASE64`, `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS` y `RELEASE_KEY_PASSWORD` en Actions Secrets; el archivo temporal se elimina al terminar y no se registran las claves.
+El APK queda en `app/build/outputs/apk/debug/app-debug.apk`. GitHub Actions ejecuta pruebas unitarias, lint y build Debug en push y pull request, y publica el APK como artifact. Un tag `v*` construye un APK Release. Sin secrets, queda sin firmar. Para firmar, configura `RELEASE_KEYSTORE_BASE64`, `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS` y `RELEASE_KEY_PASSWORD` en Actions Secrets; CI borra el keystore temporal al terminar.
 
-## Instalar
+## Instalar y permisos
 
-1. Instalar APK en Android 8+.
-2. En Ajustes > Acceso de uso, habilitar Farllirs Presence.
-3. Regresar y tocar **Iniciar**; la notificación persistente indica el servicio activo.
-4. En Configuración, añadir/retirar juegos usando package name.
-5. **Detener** para cerrar el servicio.
+1. Instala el APK en Android 8 o posterior.
+2. Para Juegos, habilita **Acceso de uso** desde Ajustes Android cuando la app lo solicite; toca **Iniciar radar**.
+3. Para Música, toca **Permitir acceso a música** y habilita Farllirs Presence en **Acceso a notificaciones**. Abre o reproduce audio en un reproductor compatible.
+4. En **Ajustes**, edita el catálogo y filtra los reproductores multimedia detectados.
+5. Detén el radar cuando no lo necesites. El modo musical deja de recibir sesiones cuando el usuario retira el acceso.
 
-Samsung puede suspender servicios: en Ajustes > Aplicaciones > Farllirs Presence > Batería, permitir actividad en segundo plano/sin restricciones. Android 14 exige tipo de Foreground Service y declara `specialUse`; Play puede requerir justificarlo. Reinicio automático se deja desactivado.
+Samsung puede suspender el servicio de detección de juegos; si eso ocurre, permite actividad en segundo plano o batería sin restricciones en Ajustes > Aplicaciones > Farllirs Presence > Batería. Android 14 exige tipo declarado para el servicio foreground; esta app declara `specialUse`. No hay reinicio automático del radar.
 
-## Pruebas y limitaciones
+## Pruebas y límites conocidos
 
-Unit tests cubren paquetes de juego, apps ajenas, salida, cambio entre juegos y múltiples activities. No sustituyen pruebas reales de permiso/dispositivo. Informe en [REPORT-TESTS.md](REPORT-TESTS.md). La validación física en Galaxy A23 Android 14 y publicación real Discord están pendientes. `UsageStatsManager` registra eventos de apps; solo el catálogo determina qué se trata como juego y el usuario debe conceder Usage Access.
+- Pruebas unitarias: paquetes configurados, apps ajenas, salida, cambio y múltiples Activities.
+- GitHub Actions: `testDebugUnitTest`, `lintDebug` y `assembleDebug`.
+- Galaxy A23 Android 14: se instaló el APK y se observó Roblox como juego actual en la notificación foreground. La prueba física de Minecraft, Free Fire y modo Música queda pendiente.
+- Discord: no se probó publicación porque la vía oficial no soporta los estados externos solicitados. Ver [REPORT-TESTS.md](REPORT-TESTS.md).
+
+`UsageStatsManager` identifica paquetes, no determina por sí mismo qué apps son juegos. `MediaSessionManager` depende de que el reproductor publique una sesión de Android. Ninguno de los dos permisos permite mostrar metadatos a Discord por sí mismo.

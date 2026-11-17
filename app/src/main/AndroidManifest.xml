@@ -4,5 +4,6 @@
  <application android:allowBackup="false" android:label="Farllirs Presence" android:theme="@android:style/Theme.Material.NoActionBar" android:usesCleartextTraffic="false">
   <activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity>
   <service android:name=".service.GameDetectionService" android:exported="false" android:foregroundServiceType="specialUse"><property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="User-enabled local foreground game detection using UsageStatsManager"/></service>
+  <service android:name=".media.MediaListenerService" android:label="Farllirs media metadata" android:exported="true" android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"><intent-filter><action android:name="android.service.notification.NotificationListenerService"/></intent-filter></service>
  </application>
 </manifest>

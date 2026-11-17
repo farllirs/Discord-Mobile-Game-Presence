@@ -36,7 +36,7 @@ Requiere Android Studio, JDK 17 y Android SDK Platform 35:
 
 El APK queda en `app/build/outputs/apk/debug/app-debug.apk`. GitHub Actions ejecuta pruebas unitarias, lint y build Debug en push y pull request, y publica el APK como artifact. Un tag `v*` construye un APK Release. Sin secrets, queda sin firmar. Para firmar, configura `RELEASE_KEYSTORE_BASE64`, `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS` y `RELEASE_KEY_PASSWORD` en Actions Secrets; CI borra el keystore temporal al terminar.
 
-Descarga de prueba: [APK Debug v0.1.0-alpha.1](https://github.com/farllirs/Discord-Mobile-Game-Presence/releases/download/v0.1.0-alpha.1/app-debug.apk).
+Descarga actualizada: [APK Debug v0.2.0-alpha.1](https://github.com/farllirs/Discord-Mobile-Game-Presence/releases/download/v0.2.0-alpha.1/app-debug.apk). En Ajustes de Android puede comprobar la versión **0.2.0-alpha.1**. Si el sistema rechaza actualizar sobre una instalación debug anterior por diferencia de firma, desinstale la anterior manualmente y luego instale esta APK.
 
 ## Instalar y permisos
 

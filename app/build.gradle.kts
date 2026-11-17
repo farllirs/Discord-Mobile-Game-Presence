@@ -1,7 +1,7 @@
 plugins { id("com.android.application"); id("org.jetbrains.kotlin.android"); id("org.jetbrains.kotlin.plugin.compose") }
 android {
  namespace = "dev.farllirs.presence"; compileSdk = 35
- defaultConfig { applicationId = "dev.farllirs.presence"; minSdk = 26; targetSdk = 35; versionCode = 1; versionName = "0.1.0"; testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
+ defaultConfig { applicationId = "dev.farllirs.presence"; minSdk = 26; targetSdk = 35; versionCode = 2; versionName = "0.2.0-alpha.1"; testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
  val releaseStore = providers.environmentVariable("RELEASE_STORE_FILE").orNull?.takeIf { it.isNotBlank() }
  signingConfigs { if (releaseStore != null) create("release") { storeFile = file(releaseStore); storePassword = providers.environmentVariable("RELEASE_STORE_PASSWORD").orNull; keyAlias = providers.environmentVariable("RELEASE_KEY_ALIAS").orNull; keyPassword = providers.environmentVariable("RELEASE_KEY_PASSWORD").orNull } }
  buildTypes { getByName("release") { isMinifyEnabled = false; if (releaseStore != null) signingConfig = signingConfigs.getByName("release") } }
